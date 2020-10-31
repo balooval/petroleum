@@ -5,7 +5,7 @@ class Speed {
 	}
 	
 	getTimeByValue(_val){
-		return new [(_val - this.value) / this.speed];
+		return [(_val - this.value) / this.speed];
 	}
 
 	getValueAt(_step) {

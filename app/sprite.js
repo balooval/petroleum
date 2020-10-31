@@ -7,6 +7,7 @@ import * as ParticleStore from './particleStore.js';
 class Sprite {
 
 	constructor(_position) {
+		this.position = _position;
 		this.motionScale = new Motion.Accel();
 		this.motionPosX = new Motion.Accel();
 		this.motionPosZ = new Motion.Accel();
@@ -42,6 +43,9 @@ class Sprite {
 		this.motionPosX.updateToTime(t);
 		this.motionPosY.updateToTime(t);
 		this.motionPosZ.updateToTime(t);
+		this.position.x = this.motionPosX.getValueAt(t);
+		this.position.y = this.motionPosY.getValueAt(t);
+		this.position.z = this.motionPosZ.getValueAt(t);
 		this.stepOffset = _step;
 	}
 	

@@ -19,34 +19,12 @@ export function init(_elmtId) {
 	scene = new THREE.Scene();
 	let view = 'side';
 	view = 'front';
-	// view = 'top';
-	if (view == 'side') {
-		camera.position.set(-100, 20, -20);
-		camera.lookAt(new THREE.Vector3(0, 20, -30));
-	} else if (view == 'front') {
-		camera.position.set(0, 20, 30);
-		camera.lookAt(new THREE.Vector3(0, 5, -10));
-	} else if (view == 'top') {
-		camera.position.set(0, 100, 10);
-		camera.lookAt(new THREE.Vector3(0, 0, -40));
-	}
+	camera.position.set(0, 30, -30);
+	camera.lookAt(new THREE.Vector3(0, 0, 10));
 	scene.add(camera);
-	controls = new THREE.OrbitControls(camera, renderer.domElement);
-	controls.damping = 0.2;
+	// controls = new THREE.OrbitControls(camera, renderer.domElement);
+	// controls.damping = 0.2;
 } 
-
-export function setCam(_view) {
-	if (_view == 'side') {
-		camera.position.set(-100, 20, -20);
-		camera.lookAt(new THREE.Vector3(0, 20, -30));
-	} else if (_view == 'front') {
-		camera.position.set(0, 20, 30);
-		camera.lookAt(new THREE.Vector3(0, 5, -10));
-	} else if (_view == 'top') {
-		camera.position.set(0, 100, 10);
-		camera.lookAt(new THREE.Vector3(0, 0, -40));
-	}
-}
 
 export function update() {
 	renderer.render(scene, camera);

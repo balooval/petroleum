@@ -1,16 +1,20 @@
-import * as Renderer from './renderer.js';
-import * as Stepper from './stepper.js';
-import * as Emiter from './emiter.js';
-import * as Input from './input.js';
-import * as Ocean from './ocean.js';
-import * as Environment from './environment.js';
-import * as Rtt from './rtt.js';
 import * as AnimationControl from './animationControl.js';
+import * as Emiter from './emiter.js';
+import * as Environment from './environment.js';
+import * as Input from './input.js';
+import * as MATH from './math.js';
+import * as Ocean from './ocean.js';
+import * as Renderer from './renderer.js';
+import * as Rtt from './rtt.js';
+import * as Stepper from './stepper.js';
 import * as Terrain from './terrain.js';
-
-let debugEffect;
+import Entitie from './entitie.js';
+import * as CollisionGrid from './collisionGrid.js';
+import * as EntitiesGenerator from './entitiesGenerator.js';
 
 export let scene = null;
+
+const test = {toto : '1'};
 
 function init() {
 	Renderer.init('main');
@@ -18,34 +22,36 @@ function init() {
 	Stepper.init();
 	Input.init();
 	Emiter.init();
+	
+	CollisionGrid.init(10, 5);
+
 	Input.evt.addEventListener('DOWN', null, onKeyDown); 
 	initScene();
 	start();
 } 
 
 function onKeyDown(_key) {
-	if (_key == 87) { // w
-		setCam('side');
-	} else if (_key == 67) { // c
-		setCam('top');
-	}
-}
-	
-export function setCam(_view) {
-	if (_view == 'side') {
-		Renderer.camera.position.set(-100, 20, -20);
-		Renderer.camera.lookAt(new THREE.Vector3(0, 20, -30));
-	} else if (_view == 'front') {
-		Renderer.camera.position.set(0, 20, 30);
-		Renderer.camera.lookAt(new THREE.Vector3(0, 5, -10));
-	} else if (_view == 'top') {
-		Renderer.camera.position.set(0, 100, 10);
-		Renderer.camera.lookAt(new THREE.Vector3(0, 0, -40));
+	if (_key == 67) { // c
+		// testEntitie();
+		EntitiesGenerator.setup(60);
+		EntitiesGenerator.start();
 	}
 }
 
+function testEntitie() {
+	const position = new THREE.Vector3(0, 0, 50);
+	const entitie = new Entitie(position);
+	entitie.addDestination(MATH.randomDirection(20), 20);
+	entitie.addDestination(MATH.randomDirection(10), 0);
+	entitie.start();
+
+	// const posX = Math.floor(Math.random() * 60);
+	// const posY = Math.floor(Math.random() * 80);
+	// CollisionGrid.updateCell(test, posX, posY);
+}
+
 export function start() {
-	AnimationControl.registerToUpdate(Renderer.controls);
+	// AnimationControl.registerToUpdate(Renderer.controls);
 	AnimationControl.registerToUpdate(Rtt);
 	AnimationControl.registerToUpdate(Renderer);
 	AnimationControl.registerToUpdate(Stepper);
@@ -55,10 +61,7 @@ export function start() {
 }
 
 function initScene() {
-	debugEffect = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 6));
-	debugEffect.position.z = 3;
 	Renderer.scene.add(Rtt.meshScreen);
-	
 	Ocean.init();
 	const water = Ocean.build();
 	Renderer.scene.add(water);

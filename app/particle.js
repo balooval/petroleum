@@ -1,5 +1,13 @@
 import Sprite from './sprite.js';
 import * as Stepper from './stepper.js';
+import * as CollisionGrid from './collisionGrid.js';
+
+const params = {
+	vertexShader: document.getElementById('vertParticle').textContent,
+	fragmentShader: document.getElementById('fragParticle').textContent,
+	transparent : true,  
+};
+const material = new THREE.ShaderMaterial(params);
 
 class Particle extends Sprite{
 	
@@ -11,14 +19,9 @@ class Particle extends Sprite{
 	}
 	
 	buildMesh() {
-		const params = {
-			vertexShader: document.getElementById('vertParticle').textContent,
-			fragmentShader: document.getElementById('fragParticle').textContent,
-			transparent : true,  
-		};
 		const size = 5;
 		const geometry = new THREE.PlaneGeometry(size, size, 1);
-		return new THREE.Mesh(geometry, new THREE.ShaderMaterial(params));
+		return new THREE.Mesh(geometry, material);
 	}
 	
 	setVelocity(_angle, _power, _emiterVelocity) {
@@ -51,7 +54,6 @@ class Particle extends Sprite{
 		this.motionPosZ.value = this.mesh.position.z;
 		this.motionPosZ.accel = 0.005;
 		this.motionPosZ.speed = this.dirFront;
-		
 		
 		const stepStopFront = this.motionPosZ.getTimeBySpeed(0);
 		Stepper.listenStep(stepStopFront + this.stepOffset, this, this.onStopFront);
@@ -88,6 +90,10 @@ class Particle extends Sprite{
 	onGround(_step) {
 		Stepper.stopListenStep(_step, this, this.onGround);
 		this.updateToTime(Stepper.curStep);
+
+		const cellContent = CollisionGrid.getCellContent(this.position.x, this.position.z);
+		console.log('cellContent', cellContent);
+
 		this.motionPosY.value = this.mesh.position.y;
 		this.motionPosY.accel = 0;
 		this.motionPosY.speed = 0;
@@ -98,6 +104,7 @@ class Particle extends Sprite{
 		
 		this.motionPosZ.speed /= 4;
 		const stepStopFront = this.motionPosZ.getTimeBySpeed(0);
+		console.log('stepStopFront', stepStopFront);
 		Stepper.listenStep(stepStopFront + this.stepOffset, this, this.onStopFront);
 	}
 	
