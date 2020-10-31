@@ -1,4 +1,5 @@
-import Particle from './particle.js';
+// import Particle from './particle.js';
+import Particle from './particleLegacy.js';
 
 const list = [];
 
