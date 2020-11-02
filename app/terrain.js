@@ -1,89 +1,130 @@
-export function build () {
-	var geometry = new THREE.Geometry();
-	var segNb = 50;
-	var len = 100;
-	var posXStart = 0;
-	var posXEnd = 0;
-	var curLenStart = 0;
-	var curLenEnd = len;
-	var depthLen = 0;
-	var depth = -20;
+import * as Geometry from './geometry.js';
+import * as Renderer from './renderer.js';
+import Earcut from '../vendor/Earcut.module.js';
 
-	var indexFaceVert = 0;
-	for (var i = 0; i < segNb - 1; i ++) {
-		var normal = new THREE.Vector3(0, 1, 0);
-		geometry.faces.push(new THREE.Face3(indexFaceVert + 0, indexFaceVert + 1, indexFaceVert + 2, normal));
-		normal = new THREE.Vector3(0, 1, 0);
-		geometry.faces.push(new THREE.Face3(indexFaceVert + 2, indexFaceVert + 3, indexFaceVert + 0, normal));
-		
-		normal = new THREE.Vector3(0, -1, 0);
-		geometry.faces.push(new THREE.Face3(indexFaceVert + 6, indexFaceVert + 5, indexFaceVert + 4, normal));
-		normal = new THREE.Vector3(0, -1, 0);
-		geometry.faces.push(new THREE.Face3(indexFaceVert + 4, indexFaceVert + 7, indexFaceVert + 6, normal));
-		
-		normal = new THREE.Vector3(0, 0, 1);
-		geometry.faces.push(new THREE.Face3(indexFaceVert + 5, indexFaceVert + 2, indexFaceVert + 1, normal));
-		normal = new THREE.Vector3(0, 0, 1);
-		geometry.faces.push(new THREE.Face3(indexFaceVert + 2, indexFaceVert + 5, indexFaceVert + 6, normal));
-		indexFaceVert += 8;
-	}
-	
-	for (var i = 0; i < segNb; i ++) {
-		posXStart = posXEnd;
-		posXEnd = posXStart + (Math.random() * 12) + 1;
-		curLenStart = curLenEnd;
-		curLenEnd = curLenStart + (Math.random() - 0.5) * 2;
-		
-		
-		geometry.vertices.push(new THREE.Vector3(
-			posXStart, 
-			0, 
-			0, 
-		));
-		geometry.vertices.push(new THREE.Vector3(
-			posXStart, 
-			0, 
-			curLenStart, 
-		));
-		
-		geometry.vertices.push(new THREE.Vector3(
-			posXEnd, 
-			0, 
-			curLenEnd, 
-		));
-		geometry.vertices.push(new THREE.Vector3(
-			posXEnd, 
-			0, 
-			0, 
-		));
-		geometry.vertices.push(new THREE.Vector3(
-			posXStart, 
-			depth, 
-			0, 
-		));
-		geometry.vertices.push(new THREE.Vector3(
-			posXStart, 
-			depth, 
-			curLenStart + depthLen, 
-		));
-		
-		depthLen = (Math.random() - 0.5) * 10;
-		
-		geometry.vertices.push(new THREE.Vector3(
-			posXEnd, 
-			depth, 
-			curLenEnd + depthLen, 
-		));
-		geometry.vertices.push(new THREE.Vector3(
-			posXEnd, 
-			depth, 
-			0, 
-		));
-	}
+const blocs = [
+	[
+		[25, 2],
+		[40, 5],
+		[42, 15],
+		[50, 20],
+		[48, 37],
+		[42, 38],
+		[41, 42],
+		[37, 40],
+		[23, 45],
+		[10, 37],
+		[13, 24],
+		[10, 20],
+		[20, 10],
+		[24, 10],
+	],
+	[
+		[-10, -10],
+		[10, -10],
+		[10, 10],
+		[-10, 10],
+	],
+];
+
+export function build () {
+	const groundMesh = buildGround();
+	const blocMesh = buildBloc(blocs[0]);
+	Renderer.scene.add(groundMesh);
+	Renderer.scene.add(blocMesh);
+}
+
+function buildGround() {
+	var geometry = new THREE.Geometry();
+	geometry.vertices.push(new THREE.Vector3(-50, 0, -50));
+	geometry.vertices.push(new THREE.Vector3(50, 0, -50));
+	geometry.vertices.push(new THREE.Vector3(50, 0, 50));
+	geometry.vertices.push(new THREE.Vector3(-50, 0, 50));
+	geometry.faces.push(new THREE.Face3(2, 1, 0));
+	geometry.faces.push(new THREE.Face3(0, 3, 2));
 	geometry.computeFlatVertexNormals();
-	// geometry.computeVertexNormals();
 	geometry.computeFaceNormals();
 	var material = new THREE.MeshPhongMaterial( {color:0xffffff} );
 	var mesh = new THREE.Mesh(geometry, material);
 	return mesh;
+}
+
+function buildBloc(_coords) {
+
+	_coords = Geometry.refinePolygon(_coords, 2);
+
+	const geometry = new THREE.Geometry();
+	const sections = [
+		Geometry.offsetPolygon(_coords, 2),
+		Geometry.offsetPolygon(_coords, -2),
+		Geometry.offsetPolygon(_coords, 1),
+		Geometry.offsetPolygon(_coords, 2),
+		Geometry.offsetPolygon(_coords, 4),
+		Geometry.offsetPolygon(_coords, 3),
+		Geometry.offsetPolygon(_coords, 1),
+	];
+	const variations = [
+		0, 
+		0, 
+		0, 
+		-4, 
+		0, 
+		0, 
+		1, 
+	];
+	const pillarGeometry = buildSection(sections, [0, 2, 10, 10, 12, 14, 15], variations);
+	// pillarGeometry.computeFlatVertexNormals();
+	pillarGeometry.computeVertexNormals();
+	pillarGeometry.computeFaceNormals();
+	geometry.merge(pillarGeometry);
+	// geometry.computeVertexNormals();
+
+	// const largeGeometry = buildSection(offsetCoords, [10, 15]);
+	// largeGeometry.computeVertexNormals();
+	// geometry.merge(largeGeometry);
+
+	// geometry.computeFaceNormals();
+	const material = new THREE.MeshPhongMaterial( {color:0xffffff} );
+	const mesh = new THREE.Mesh(geometry, material);
+	return mesh;
+}
+
+function buildSection(_sections, _elevations, _variations) {
+	const geometry = new THREE.Geometry();
+	const perimeterLength = _sections[0].length;
+	_sections.forEach((coords, i) => {
+		const elevation = _elevations[i];
+		coords.forEach(coord => {
+			const finalElevation = elevation + (Math.random() * _variations[i]);
+			geometry.vertices.push(new THREE.Vector3(coord[0], finalElevation, coord[1]));
+		});
+	});
+	let facesSteps = _sections.length - 1;
+	let faceOffset = 0;
+	for (let i = 0; i < facesSteps; i ++) {
+		let faceIndex = 0;
+		_sections[0].forEach(coord => {
+			const vertIdA = (faceIndex + 0) + faceOffset;
+			const vertIdB = ((faceIndex + 1) % perimeterLength) + faceOffset;
+			const vertIdC = faceIndex + perimeterLength + faceOffset;
+			const vertIdD = ((faceIndex + 1) % perimeterLength) + perimeterLength + faceOffset;
+			geometry.faces.push(new THREE.Face3(vertIdC, vertIdB, vertIdA));
+			geometry.faces.push(new THREE.Face3(vertIdD, vertIdB, vertIdC));
+			faceIndex ++;
+		});
+		faceOffset += perimeterLength;
+	}
+	const lastSection = [..._sections].pop();
+	const flatCoords = lastSection.flat();
+	const ceilIndex = Earcut(flatCoords);
+	const ceilFacesOffset = perimeterLength * (_sections.length - 1);
+	for (let i = 0; i < ceilIndex.length; i += 3) {
+		geometry.faces.push(new THREE.Face3(
+			ceilFacesOffset + ceilIndex[i + 2], 
+			ceilFacesOffset + ceilIndex[i + 1], 
+			ceilFacesOffset + ceilIndex[i + 0]
+		));
+	}
+
+	return geometry;
 }
