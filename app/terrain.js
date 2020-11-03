@@ -27,9 +27,11 @@ const blocs = [
 	],
 ];
 
-export function build () {
+export function build (_datas) {
+	console.log('_datas', _datas);
 	const groundMesh = buildGround();
-	const blocMesh = buildBloc(blocs[0]);
+	// const blocMesh = buildBloc(blocs[0]);
+	const blocMesh = buildBloc(_datas);
 	Renderer.scene.add(groundMesh);
 	Renderer.scene.add(blocMesh);
 }
@@ -51,11 +53,11 @@ function buildGround() {
 
 function buildBloc(_coords) {
 
-	_coords = Geometry.refinePolygon(_coords, 2);
+	// _coords = Geometry.refinePolygon(_coords, 2);
 
 	const geometry = new THREE.Geometry();
 	const sections = [
-		Geometry.offsetPolygon(_coords, 2),
+		Geometry.offsetPolygon(_coords, 1),
 		Geometry.offsetPolygon(_coords, -2),
 		Geometry.offsetPolygon(_coords, 1),
 		Geometry.offsetPolygon(_coords, 2),
@@ -63,16 +65,10 @@ function buildBloc(_coords) {
 		Geometry.offsetPolygon(_coords, 3),
 		Geometry.offsetPolygon(_coords, 1),
 	];
-	const variations = [
-		0, 
-		0, 
-		0, 
-		-4, 
-		0, 
-		0, 
-		1, 
-	];
-	const pillarGeometry = buildSection(sections, [0, 2, 10, 10, 12, 14, 15], variations);
+	// const elevations = [0, 15];
+	const elevations = [0, 2, 10, 10, 12, 14, 15];
+	const variations = [0, 0, 0, -4, 0, 0, 1];
+	const pillarGeometry = buildSection(sections, elevations, variations);
 	// pillarGeometry.computeFlatVertexNormals();
 	pillarGeometry.computeVertexNormals();
 	pillarGeometry.computeFaceNormals();
@@ -96,6 +92,7 @@ function buildSection(_sections, _elevations, _variations) {
 		const elevation = _elevations[i];
 		coords.forEach(coord => {
 			const finalElevation = elevation + (Math.random() * _variations[i]);
+			// const finalElevation = elevation;
 			geometry.vertices.push(new THREE.Vector3(coord[0], finalElevation, coord[1]));
 		});
 	});
