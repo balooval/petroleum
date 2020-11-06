@@ -17,24 +17,6 @@ export function refinePolygon(_polygon, _nb) {
 	return coords;
 }
 
-function mapPosition(_coordA, _coordB, _prct) {
-	const direction = [
-		_coordB[0] - _coordA[0],
-		_coordB[1] - _coordA[1],
-	];
-	const length = getLength(direction);
-	const angle = Math.atan2(direction[1], direction[0]);
-	const cos = Math.cos(angle);
-	const sin = Math.sin(angle);
-	const rnd = Math.random() * 3;
-	return [
-		rnd + _coordA[0] + ((cos * length) * _prct),
-		rnd + _coordA[1] + ((sin * length) * _prct),
-	];
-}
-
-
-
 export function offsetPolygon(_polygon, _offset) {
 	const edges = calcPolygonEdges(_polygon);
 	const edgesNormales = calcEdgesNormales(edges);
@@ -109,7 +91,6 @@ function rotateVector(_vector) {
 	];
 }
 
-
 function normalize(_vector) {
 	const length = getLength(_vector);
 	return [
@@ -120,4 +101,26 @@ function normalize(_vector) {
 
 function getLength(_vector) {
 	return Math.sqrt(Math.pow(_vector[0], 2) + Math.pow(_vector[1], 2))
+}
+
+export function mapPosition(_coordA, _coordB, _prct) {
+	const direction = [
+		_coordB[0] - _coordA[0],
+		_coordB[1] - _coordA[1],
+	];
+	const length = getLength(direction);
+	const angle = Math.atan2(direction[1], direction[0]);
+	const cos = Math.cos(angle);
+	const sin = Math.sin(angle);
+	return [
+		roundSmallValue(_coordA[0] + ((cos * length) * _prct)),
+		roundSmallValue(_coordA[1] + ((sin * length) * _prct)),
+	];
+}
+
+function roundSmallValue(_value) {
+	if (_value < 0.00000000001) {
+		return 0;
+	}
+	return _value;
 }

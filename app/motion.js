@@ -1,7 +1,7 @@
 class Speed {
 	constructor(_value, _speed){
 		this.value = _value || 0;
-		this.speed = 0;
+		this.speed = _speed || 0;
 	}
 	
 	getTimeByValue(_val){
