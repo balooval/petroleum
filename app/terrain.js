@@ -27,13 +27,14 @@ const blocs = [
 	],
 ];
 
-export function build (_datas) {
-	console.log('_datas', _datas);
+export function build (_polygons) {
+	console.log('_polygons', _polygons);
 	const groundMesh = buildGround();
-	// const blocMesh = buildBloc(blocs[0]);
-	const blocMesh = buildBloc(_datas);
 	Renderer.scene.add(groundMesh);
-	Renderer.scene.add(blocMesh);
+	_polygons.forEach(polygon => {
+		const blocMesh = buildBloc(polygon);
+		Renderer.scene.add(blocMesh);
+	});
 }
 
 function buildGround() {

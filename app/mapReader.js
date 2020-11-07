@@ -2,20 +2,23 @@ import SvgParser from '../vendor/svg-parser.js';
 
 
 export function read(_svgString) {
+	const polygons = [];
 	const svgParsed = SvgParser(_svgString);
-	const path = svgParsed.children[0].children[1].children[1].properties.d;
-	const coords = parsePath(path);
-	// return coords;
-	return coords.reverse();
+	const shapes = svgParsed.children[0].children;
+	shapes.shift();
+	const paths = getPaths(shapes[0]);
+	paths.forEach(path => {
+		const coords = parsePath(path);
+		polygons.push(coords.reverse());
+	});
+	return polygons;
 }
 
 function parsePath(_path) {
 	const reduced = _path.slice(1, -1);
 	const coordCouples = reduced.split('l');
 	coordCouples.pop();
-	console.log('coordCouples', coordCouples);
 	const startCoord = readCoordCouple(coordCouples.shift());
-	console.log('startCoord', startCoord);
 	const relativeCoords = coordCouples.map(readCoordCouple);
 	let lastCoord = startCoord;
 	const coords = [];
@@ -37,4 +40,9 @@ function readCoordCouple(_couple) {
 		parseInt(tokens[0]),
 		parseInt(tokens[1]),
 	];
+}
+
+function getPaths(_shape) {
+	const paths = _shape.children.filter(child => child.tagName == 'path');
+	return paths.map(path => path.properties.d);
 }
