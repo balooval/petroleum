@@ -10,12 +10,15 @@ import * as Terrain from './terrain.js';
 import * as CollisionGrid from './collisionGrid.js';
 import * as EntitiesGenerator from './entitiesGenerator.js';
 import * as MapReader from './mapReader.js';
+import Entitie from './entitie.js';
+import * as MATH from './math.js';
 
 
 function init() {
 	Renderer.init('main');
 	Rtt.init();
-	Stepper.init();
+	const clock = new THREE.Clock();
+	Stepper.init(clock);
 	Input.init();
 	Emiter.init();
 	
@@ -28,9 +31,18 @@ function init() {
 
 function onKeyDown(_key) {
 	if (_key == 67) { // c
-		EntitiesGenerator.setup(60);
+		EntitiesGenerator.init(60, createEntitie);
 		EntitiesGenerator.start();
 	}
+}
+
+function createEntitie() {
+	const startX = MATH.randomDirection(40);
+	const position = new THREE.Vector3(startX, 0, 50);
+	const entitie = new Entitie(position);
+	entitie.addDestination(MATH.randomDirection(20), 20);
+	entitie.addDestination(MATH.randomDirection(10), 0);
+	entitie.start();
 }
 
 export function start() {

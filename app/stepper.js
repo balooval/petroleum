@@ -7,9 +7,9 @@ const stepBySec = 60;
 export let evt = null;
 export let curStep = 0;
 
-export function init() {
+export function init(_clock) {
 	evt = new Evt();
-	clock = new THREE.Clock();
+	clock = _clock;
 	clock.start();
 }
 
