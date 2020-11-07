@@ -22,8 +22,8 @@ export function init(_elmtId) {
 	camera.position.set(0, 30, -30);
 	camera.lookAt(new THREE.Vector3(0, 0, 10));
 	scene.add(camera);
-	// controls = new THREE.OrbitControls(camera, renderer.domElement);
-	// controls.damping = 0.2;
+	controls = new THREE.OrbitControls(camera, renderer.domElement);
+	controls.damping = 0.2;
 } 
 
 export function update() {

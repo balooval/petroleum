@@ -1,4 +1,3 @@
-import * as Stepper from './stepper.js';
 import * as AnimationControl from './animationControl.js';
 import * as Renderer from './renderer.js';
 import * as CollisionGrid from './collisionGrid.js';

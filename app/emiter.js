@@ -20,6 +20,7 @@ export function init() {
 	Input.evt.addEventListener('DOWN', null, onKeyDown); 
 	Input.evt.addEventListener('UP', null, onKeyUp); 
 	mesh = new THREE.Mesh(new THREE.BoxGeometry( 2, 2, 6 ), new THREE.MeshBasicMaterial({color:0x502020}));
+	mesh.position.y = 1;
 	mesh.position.z = -12;
 	Renderer.scene.add(mesh);
 }

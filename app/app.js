@@ -48,7 +48,7 @@ function initScene() {
 	// const water = Ocean.build();
 	// Renderer.scene.add(water);
 
-	const svg = document.getElementById('svg-content').text;
+	const svg = document.getElementById('svg-content-multiple').text;
 	const terrainDatas = MapReader.read(svg);
 	Terrain.build(terrainDatas);
 	Environment.init();
