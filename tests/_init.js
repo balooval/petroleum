@@ -5,3 +5,4 @@ import './geometry.js';
 import './mapReader.js';
 import './entitiesGenerator.js';
 import './quadtree.js';
+import './graphTree.js';

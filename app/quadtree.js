@@ -1,3 +1,4 @@
+
 export function build(_mapDatas) {
 	const gridSize = _mapDatas.length;
 	const rootBloc = new Bloc(0, 0, gridSize, [0, 0], 0);
@@ -97,6 +98,7 @@ export class Bloc {
 		this.depth = _depth;
 		this.parent = null;
 		this.childrens = [];
+		this.neigbours = [];
 		this.value = null;
 	}
 
@@ -110,6 +112,23 @@ export class Bloc {
 
 	addChild(_bloc) {
 		this.childrens.push(_bloc)
+	}
+
+	addNeigbour(_bloc) {
+		if (this.neigbours.includes(_bloc)) {
+			return null;
+		}
+		this.neigbours.push(_bloc);
+	}
+
+	getNeigbourAtOffset(_offsetX, _offsetY) {
+		let index = -1;
+		offsetsNeigbour.forEach((offset, i) => {
+			if (offset[0] == _offsetX && offset[1] == _offsetY) {
+				index = i;
+			}
+		});
+		return this.neigbours[index];
 	}
 
 	getBlocAtPosition(_x, _y) {
@@ -136,6 +155,9 @@ export class Bloc {
 
 	getBlocAtCoord(_coord, _depth) {
 		const convertedCoord = this.convertCoordToSmallerDepth(_coord, _depth, this.depth);
+		if (!convertedCoord) {
+			return null;
+		}
 		if (this.coord[0] != convertedCoord[0]) {
 			return null;
 		}
@@ -152,20 +174,21 @@ export class Bloc {
 		return res;
 	}
 
-	containCoord(_coord) {
-		if (this.coord[0] > _coord[0]) return false;
-		if (this.coord[1] > _coord[1]) return false;
-		if (this.coord[0] + this.size < _x) return false;
-		if (this.y + this.size < _y) return false;
+	containCoordAtDepth(_coord, _depth) {
+		const includeCoord = this.coordIncludingForDepth(_depth);
+		if (includeCoord.minX > _coord[0]) return false;
+		if (includeCoord.maxX < _coord[0]) return false;
+		if (includeCoord.minY > _coord[1]) return false;
+		if (includeCoord.maxY < _coord[1]) return false;
 		return true;
 	}
 
 	coordIncludingForDepth(_depth) {
 		const depthGap = _depth - this.depth;
 		const minX = this.coord[0] * Math.pow(2, depthGap);
-		const maxX = (this.coord[0] + 1) * Math.pow(2, depthGap);
+		const maxX = ((this.coord[0] + 1) * Math.pow(2, depthGap)) - 1;
 		const minY = this.coord[1] * Math.pow(2, depthGap);
-		const maxY = (this.coord[1] + 1) * Math.pow(2, depthGap);
+		const maxY = ((this.coord[1] + 1) * Math.pow(2, depthGap)) - 1;
 		return {minX, maxX, minY, maxY};
 	}
 
@@ -188,15 +211,22 @@ export class Bloc {
 	}
 
 	isMyNeigbour(_bloc) {
+		let blocA = this;
+		let blocB = _bloc;
+		const depthDiff = _bloc.depth - this.depth;
+		if (depthDiff > 0) {
+			blocA = _bloc;
+			blocB = this;
+		}
 		let isNeigbour = false;
-		const coordToBlocDepth = this.convertCoordToSmallerDepth(this.coord, this.depth, _bloc.depth);
-		console.log('coordToBlocDepth', coordToBlocDepth);
 		offsetsNeigbour.forEach(offset => {
-			const nextCoordX = coordToBlocDepth[0] + offset[0];
-			const nextCoordY = coordToBlocDepth[1] + offset[1];
-			if (nextCoordX != _bloc.coord[0]) return false;
-			if (nextCoordY != _bloc.coord[1]) return false;
-			isNeigbour = true;
+			const neigbourCoord = [
+				blocA.coord[0] + offset[0],
+				blocA.coord[1] + offset[1],
+			];
+			if (blocB.containCoordAtDepth(neigbourCoord, blocA.depth)) {
+				isNeigbour = true;
+			}
 		});
 		return isNeigbour;
 	}
