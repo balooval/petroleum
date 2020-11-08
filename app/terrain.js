@@ -2,39 +2,17 @@ import * as Geometry from './geometry.js';
 import * as Renderer from './renderer.js';
 import Earcut from '../vendor/Earcut.module.js';
 
-const blocs = [
-	[
-		[25, 2],
-		[40, 5],
-		[42, 15],
-		[50, 20],
-		[48, 37],
-		[42, 38],
-		[41, 42],
-		[37, 40],
-		[23, 45],
-		[10, 37],
-		[13, 24],
-		[10, 20],
-		[20, 10],
-		[24, 10],
-	],
-	[
-		[-10, -10],
-		[10, -10],
-		[10, 10],
-		[-10, 10],
-	],
-];
-
 export function build (_polygons) {
 	console.log('_polygons', _polygons);
 	const groundMesh = buildGround();
 	Renderer.scene.add(groundMesh);
-	_polygons.forEach(polygon => {
-		const blocMesh = buildBloc(polygon);
-		Renderer.scene.add(blocMesh);
-	});
+
+	// const blocsMeshes = buildBlocs(_polygons);
+	// blocsMeshes.forEach(mesh => Renderer.scene.add(mesh));
+}
+
+function buildBlocs(_polygons) {
+	return _polygons.map(polygon => buildBloc(polygon));
 }
 
 function buildGround() {
