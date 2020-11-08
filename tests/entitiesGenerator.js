@@ -6,7 +6,7 @@ QUnit.module('Entitie generator');
 QUnit.test('Generate at step', assert => {
     let mockTime = 0.5;
     const mockClock = {
-        start : () => console.log('MOCK Clock start'),
+        start : () => true,
         getElapsedTime : () => mockTime,
     };
     Stepper.init(mockClock);

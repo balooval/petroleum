@@ -4,7 +4,7 @@ QUnit.module('Geometry');
 
 QUnit.test('Map position', assert => {
   const mappedPosition = Geometry.mapPosition([0, 0], [0, 10], 0.5);
-  assert.deepEqual(mappedPosition, [0, 5]);
+  assert.deepEqual(mappedPosition, [0, 5], 'Mapped position is OK');
 });
 
 QUnit.test('Offset polygon', assert => {
@@ -33,7 +33,7 @@ QUnit.test('Offset polygon', assert => {
     ]
   ];
   const offset = Geometry.offsetPolygon(polygon, 1);
-  assert.deepEqual(offset, result);
+  assert.deepEqual(offset, result, 'Offset coords are OK');
 });
 
 QUnit.test('Refine polygon', assert => {
@@ -54,5 +54,5 @@ QUnit.test('Refine polygon', assert => {
     [0, 5],
   ];
   const refined = Geometry.refinePolygon(polygon, 1);
-  assert.deepEqual(refined, result);
+  assert.deepEqual(refined, result, 'Polygon refined');
 });

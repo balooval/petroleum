@@ -14,5 +14,5 @@ QUnit.test('Simple shape', assert => {
 QUnit.test('Multiple shapes', assert => {
   const svgContent = '<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg"><!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ --><g><title>background</title><rect fill="#fff" id="canvas_background" height="602" width="802" y="-1" x="-1"/><g display="none" overflow="visible" y="0" x="0" height="100%" width="100%" id="canvasGrid"><rect fill="url(#gridpattern)" stroke-width="0" y="0" x="0" height="100%" width="100%"/></g></g><g><title>Layer 1</title><path id="svg_1" d="m42.7598,26.99926l-31.26012,41.99885l14.99959,28.49922l20.99942,-19.99945l8.49977,28.49922l50.9986,-38.49894l-37.99896,-41.99885l-26.23831,1.49996z" stroke-width="1.5" stroke="#000" fill="#fff"/><path id="svg_2" d="m127.75747,139.49617l53.23756,6.99981l-34.99904,53.99852l-18.23852,-60.99832z" stroke-width="1.5" stroke="#000" fill="#fff"/><path id="svg_4" d="m183.75594,54.49851l-21.76038,25.4993l27.49925,18.99948l-1.99995,13.49963l14.4996,-12.49966l-1.99995,-34.99904l42.99882,-12.99964l-59.2374,2.49993z" fill-opacity="null" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#fff"/></g></svg>';
   const polygons = MapReader.read(svgContent);
-  assert.equal(polygons.length, 3, 'Contain 3 shape');
+  assert.equal(polygons.length, 3, 'Found 3 shape');
 });
