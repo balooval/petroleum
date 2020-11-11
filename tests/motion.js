@@ -2,16 +2,16 @@ import * as Motion from '../app/motion.js';
 
 QUnit.module('Motion');
 
-QUnit.test('No speed', assert => {
+QUnit.test('With null speed dont move after time', assert => {
   const motion = new Motion.Speed();
   const value = motion.getValueAt(100);
-  assert.equal(value, 0, 'No speed OK');
+  assert.equal(value, 0, 'Position is same after elapsed time');
 });
 
-QUnit.test('Some speed', assert => {
+QUnit.test('With positiv speed has moved after time', assert => {
   const motion = new Motion.Speed(0, 2);
   const value = motion.getValueAt(100);
-  assert.equal(value, 200, 'Value OK');
+  assert.equal(value, 200, 'Position has changed');
 });
 
 QUnit.test('Some accel', assert => {
