@@ -7,34 +7,34 @@ const offsetsNeigbour = [
 ];
 
 
-export function build(_rootBloc) {
-    const finalsBlocs = getFinalsBlocs(_rootBloc, []);
-    finalsBlocs.forEach(bloc => calcBlocNeigbours(_rootBloc, bloc));
+export function build(_rootChunk) {
+    const finalsChunks = getFinalsChunks(_rootChunk, []);
+    finalsChunks.forEach(chunk => calcChunkNeigbours(_rootChunk, chunk));
 }
 
-function calcBlocNeigbours(_rootBloc, _bloc) {
+function calcChunkNeigbours(_rootChunk, _chunk) {
     offsetsNeigbour.forEach(offset => {
         const coordNeigbour = [
-            _bloc.coord[0] + offset[0],
-            _bloc.coord[1] + offset[1],
+            _chunk.coord[0] + offset[0],
+            _chunk.coord[1] + offset[1],
         ];
-        const neigbour = _rootBloc.getBlocAtCoord(coordNeigbour, _bloc.depth);
+        const neigbour = _rootChunk.getChunkAtCoord(coordNeigbour, _chunk.depth);
         if (!neigbour) {
             return;
         }
-        if (_bloc.isMyNeigbour(neigbour)) {
-            _bloc.addNeigbour(neigbour);
-            neigbour.addNeigbour(_bloc);
+        if (_chunk.isMyNeigbour(neigbour)) {
+            _chunk.addNeigbour(neigbour);
+            neigbour.addNeigbour(_chunk);
         }
     });
 }
 
-function getFinalsBlocs(_bloc, _values) {
-    if (_bloc.childrens.length === 0) {
-        _values.push(_bloc);
+function getFinalsChunks(_chunk, _values) {
+    if (_chunk.childrens.length === 0) {
+        _values.push(_chunk);
     }
-    _bloc.childrens.forEach(bloc => {
-        getFinalsBlocs(bloc, _values)
+    _chunk.childrens.forEach(chunk => {
+        getFinalsChunks(chunk, _values)
     });
     return _values;
 }

@@ -15,20 +15,20 @@ const datas = [
 ];
 
 QUnit.test('Build graph', assert => {
-  const rootBloc = Quadtree.build(datas);
-  GraphTree.build(rootBloc);
+  const rootChunk = Quadtree.build(datas);
+  GraphTree.build(rootChunk);
   
-  const bloc = rootBloc.getBlocAtCoord([3, 4], 3);
-  assert.equal(bloc.neigbours.length, 4, 'Blocs has 4 neigbour');
+  const chunk = rootChunk.getChunkAtCoord([3, 4], 3);
+  assert.equal(chunk.neigbours.length, 4, 'Chunks has 4 neigbour');
 
-  let expectedNeigbour = rootBloc.getBlocAtCoord([2, 4], 3);
-  let someNeigbour = bloc.neigbours[0];
+  let expectedNeigbour = rootChunk.getChunkAtCoord([2, 4], 3);
+  let someNeigbour = chunk.neigbours[0];
   assert.equal(expectedNeigbour, someNeigbour, 'First (same depth) neigbour is valid');
   
-  expectedNeigbour = rootBloc.getBlocAtCoord([0, 0], 1);
-  someNeigbour = bloc.neigbours[1];
+  expectedNeigbour = rootChunk.getChunkAtCoord([0, 0], 1);
+  someNeigbour = chunk.neigbours[1];
   assert.equal(expectedNeigbour, someNeigbour, 'Second (lower depth) neigbour is valid');
 
-  expectedNeigbour = rootBloc.getBlocAtCoord([0, 0], 1);
-  assert.equal(expectedNeigbour.neigbours[6], bloc, 'Neigbourhood is reciproque with lower depth');
+  expectedNeigbour = rootChunk.getChunkAtCoord([0, 0], 1);
+  assert.equal(expectedNeigbour.neigbours[6], chunk, 'Neigbourhood is reciproque with lower depth');
 });

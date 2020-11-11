@@ -1,9 +1,9 @@
 
 export function build(_mapDatas) {
 	const gridSize = _mapDatas.length;
-	const rootBloc = new Bloc(0, 0, gridSize, [0, 0], 0);
-	createChildrensBlocs(rootBloc, _mapDatas);
-	return rootBloc;
+	const rootChunk = new Chunk(0, 0, gridSize, [0, 0], 0);
+	createChildrensChunks(rootChunk, _mapDatas);
+	return rootChunk;
 }
 
 const offsetsNeigbour = [
@@ -13,10 +13,10 @@ const offsetsNeigbour = [
 	[0, 1],
 ];
 
-function createChildrensBlocs(_bloc, _datas) {
+function createChildrensChunks(_chunk, _datas) {
 	const isHomogene = containOneValue(_datas);
 	if (isHomogene) {
-		_bloc.setValue(_datas[0][0]);
+		_chunk.setValue(_datas[0][0]);
 		return;
 	}
 	const subDatas = splitDatas(_datas);
@@ -31,15 +31,15 @@ function createChildrensBlocs(_bloc, _datas) {
 	];
 	subDatas.forEach((subData, i) => {
 		const offset = offsets[i];
-		const blocSize = _bloc.size / 2;
-		const blocX = _bloc.x + (blocSize * offset[0]);
-		const blocY = _bloc.y + (blocSize * offset[1]);
-		const coordX = (_bloc.coord[0] * 2) + offset[0];
-		const coordY = (_bloc.coord[1] * 2) + offset[1];
-		const bloc = new Bloc(blocX, blocY, blocSize, [coordX, coordY], _bloc.depth + 1);
-		bloc.setParent(_bloc);
-		_bloc.addChild(bloc);
-		createChildrensBlocs(bloc, subData);
+		const chunkSize = _chunk.size / 2;
+		const chunkX = _chunk.x + (chunkSize * offset[0]);
+		const chunkY = _chunk.y + (chunkSize * offset[1]);
+		const coordX = (_chunk.coord[0] * 2) + offset[0];
+		const coordY = (_chunk.coord[1] * 2) + offset[1];
+		const chunk = new Chunk(chunkX, chunkY, chunkSize, [coordX, coordY], _chunk.depth + 1);
+		chunk.setParent(_chunk);
+		_chunk.addChild(chunk);
+		createChildrensChunks(chunk, subData);
 	});
 }
 
@@ -89,16 +89,21 @@ function parse(_datas, _callback) {
 	}
 }
 
-export class Bloc {
+export class Chunk {
 	constructor(_x, _y, _size, _coord, _depth) {
 		this.x = _x;
 		this.y = _y;
 		this.size = _size;
+		this.center = [
+			this.x + (this.size / 2),
+			this.y + (this.size / 2),
+		];
 		this.coord = _coord;
 		this.depth = _depth;
 		this.parent = null;
 		this.childrens = [];
 		this.neigbours = [];
+		this.neigboursDistances = [];
 		this.value = null;
 	}
 
@@ -106,19 +111,29 @@ export class Bloc {
 		this.value = _value;
 	}
 
-	setParent(_bloc) {
-		this.parent = _bloc;
+	setParent(_chunk) {
+		this.parent = _chunk;
 	}
 
-	addChild(_bloc) {
-		this.childrens.push(_bloc)
+	addChild(_chunk) {
+		this.childrens.push(_chunk)
 	}
 
-	addNeigbour(_bloc) {
-		if (this.neigbours.includes(_bloc)) {
+	addNeigbour(_chunk) {
+		if (this.neigbours.includes(_chunk)) {
 			return null;
 		}
-		this.neigbours.push(_bloc);
+		this.neigbours.push(_chunk);
+		const distance = this.getDistanceToChunk(_chunk);
+		this.neigboursDistances.push(distance);
+	}
+
+	getDistanceToChunk(_chunk) {
+		return Math.sqrt(
+			Math.pow(this.center[0] - _chunk.center[0], 2)
+			+
+			Math.pow(this.center[1] - _chunk.center[1], 2)
+		);
 	}
 
 	getNeigbourAtOffset(_offsetX, _offsetY) {
@@ -131,7 +146,7 @@ export class Bloc {
 		return this.neigbours[index];
 	}
 
-	getBlocAtPosition(_x, _y) {
+	getChunkAtPosition(_x, _y) {
 		if (this.containPosition(_x, _y) === false) {
 			return null;
 		}
@@ -139,7 +154,7 @@ export class Bloc {
 			return this;
 		}
 		const res = this.childrens
-			.map(child => child.getBlocAtPosition(_x, _y))
+			.map(child => child.getChunkAtPosition(_x, _y))
 			.filter(child => child !== null)
 			.pop();
 		return res;
@@ -153,7 +168,7 @@ export class Bloc {
 		return true;
 	}
 
-	getBlocAtCoord(_coord, _depth) {
+	getChunkAtCoord(_coord, _depth) {
 		const convertedCoord = this.convertCoordToSmallerDepth(_coord, _depth, this.depth);
 		if (!convertedCoord) {
 			return null;
@@ -168,7 +183,7 @@ export class Bloc {
 			return this;
 		}
 		const res = this.childrens
-			.map(child => child.getBlocAtCoord(_coord, _depth))
+			.map(child => child.getChunkAtCoord(_coord, _depth))
 			.filter(child => child !== null)
 			.pop();
 		return res;
@@ -210,21 +225,21 @@ export class Bloc {
 		return this.parent.getRoot();
 	}
 
-	isMyNeigbour(_bloc) {
-		let blocA = this;
-		let blocB = _bloc;
-		const depthDiff = _bloc.depth - this.depth;
+	isMyNeigbour(_chunk) {
+		let chunkA = this;
+		let chunkB = _chunk;
+		const depthDiff = _chunk.depth - this.depth;
 		if (depthDiff > 0) {
-			blocA = _bloc;
-			blocB = this;
+			chunkA = _chunk;
+			chunkB = this;
 		}
 		let isNeigbour = false;
 		offsetsNeigbour.forEach(offset => {
 			const neigbourCoord = [
-				blocA.coord[0] + offset[0],
-				blocA.coord[1] + offset[1],
+				chunkA.coord[0] + offset[0],
+				chunkA.coord[1] + offset[1],
 			];
-			if (blocB.containCoordAtDepth(neigbourCoord, blocA.depth)) {
+			if (chunkB.containCoordAtDepth(neigbourCoord, chunkA.depth)) {
 				isNeigbour = true;
 			}
 		});
